@@ -53,15 +53,21 @@ if (currentYear) {
 
 const pageLoader = document.getElementById("pageLoader");
 
-const loaderNumber = document.querySelector(".loader-number");
+const loaderNumber =
+    document.querySelector(".loader-number");
 
-const loaderProgress = document.querySelector(".loader-progress");
+const loaderProgress =
+    document.querySelector(".loader-progress");
+
+let loaderFinished = false;
 
 
 function runLoader() {
 
     if (!pageLoader) {
+
         runIntroAnimation();
+
         return;
     }
 
@@ -69,14 +75,33 @@ function runLoader() {
     let progress = 0;
 
 
+    /*
+        Start loader from 00.
+    */
+
+    if (loaderNumber) {
+        loaderNumber.textContent = "00";
+    }
+
+
+    if (loaderProgress) {
+
+        gsap.set(loaderProgress, {
+            width: "0%"
+        });
+
+    }
+
+
     const counter = setInterval(() => {
 
         /*
-            Random increment makes the loader feel
-            slightly less mechanical.
+            Slightly random progress makes the
+            loader feel less artificial.
         */
 
-        progress += Math.floor(Math.random() * 8) + 3;
+        progress +=
+            Math.floor(Math.random() * 8) + 3;
 
 
         if (progress >= 100) {
@@ -84,13 +109,6 @@ function runLoader() {
             progress = 100;
 
             clearInterval(counter);
-
-
-            setTimeout(() => {
-
-                closeLoader();
-
-            }, 250);
 
         }
 
@@ -106,29 +124,59 @@ function runLoader() {
         if (loaderProgress) {
 
             gsap.to(loaderProgress, {
+
                 width: `${progress}%`,
-                duration: 0.35,
+
+                duration: 0.3,
+
                 ease: "power2.out"
+
             });
 
         }
 
-    }, 70);
+
+        if (progress === 100) {
+
+            setTimeout(() => {
+
+                closeLoader();
+
+            }, 300);
+
+        }
+
+    }, 65);
 
 }
 
 
+/* =========================================================
+   CLOSE LOADER
+========================================================= */
+
 function closeLoader() {
+
+    if (
+        !pageLoader ||
+        loaderFinished
+    ) {
+        return;
+    }
+
+
+    loaderFinished = true;
+
 
     const timeline = gsap.timeline({
 
         onComplete: () => {
 
-            if (pageLoader) {
-                pageLoader.style.display = "none";
-            }
+            pageLoader.style.display = "none";
 
             runIntroAnimation();
+
+            ScrollTrigger.refresh();
 
         }
 
@@ -138,27 +186,53 @@ function closeLoader() {
     timeline
 
         .to(".loader-center", {
+
             y: -30,
+
             opacity: 0,
+
             duration: 0.45,
+
             ease: "power3.in"
+
         })
 
-        .to(".loader-brand", {
-            opacity: 0,
-            duration: 0.3
-        }, "<")
+        .to(
+            ".loader-brand",
+            {
 
-        .to(".loader-track", {
-            opacity: 0,
-            duration: 0.3
-        }, "<")
+                opacity: 0,
 
-        .to(pageLoader, {
-            yPercent: -100,
-            duration: 1,
-            ease: "power4.inOut"
-        });
+                duration: 0.3
+
+            },
+            "<"
+        )
+
+        .to(
+            ".loader-track",
+            {
+
+                opacity: 0,
+
+                duration: 0.3
+
+            },
+            "<"
+        )
+
+        .to(
+            pageLoader,
+            {
+
+                yPercent: -100,
+
+                duration: 0.9,
+
+                ease: "power4.inOut"
+
+            }
+        );
 
 }
 
@@ -175,87 +249,189 @@ function runIntroAnimation() {
     timeline
 
         .from(".header", {
+
             y: -80,
+
             opacity: 0,
+
             duration: 0.9,
+
             ease: "power4.out"
+
         })
 
-        .from(".hero-meta", {
-            y: 20,
-            opacity: 0,
-            duration: 0.7,
-            ease: "power3.out"
-        }, "-=0.45")
+        .from(
+            ".hero-meta",
+            {
 
-        .from(".hero-kicker", {
-            y: 20,
-            opacity: 0,
-            duration: 0.6
-        }, "-=0.4")
+                y: 20,
 
-        .from(".hero-line-inner", {
-            yPercent: 115,
-            duration: 1.1,
-            stagger: 0.09,
-            ease: "power4.out"
-        }, "-=0.4")
+                opacity: 0,
 
-        .from(".hero-description-wrap", {
-            y: 30,
-            opacity: 0,
-            duration: 0.8,
-            ease: "power3.out"
-        }, "-=0.55")
+                duration: 0.7,
 
-        .from(".hero-actions", {
-            y: 25,
-            opacity: 0,
-            duration: 0.7,
-            ease: "power3.out"
-        }, "-=0.55")
+                ease: "power3.out"
 
-        .from(".portrait-frame", {
-            clipPath:
-                "polygon(0 100%, 94% 100%, 100% 100%, 7% 100%)",
-            scale: 0.94,
-            duration: 1.2,
-            ease: "power4.out"
-        }, "-=1.15")
+            },
+            "-=0.45"
+        )
 
-        .from(".portrait-image", {
-            scale: 1.2,
-            duration: 1.4,
-            ease: "power4.out"
-        }, "<")
+        .from(
+            ".hero-kicker",
+            {
 
-        .from(".portrait-index", {
-            opacity: 0,
-            y: 15,
-            duration: 0.6
-        }, "-=0.6")
+                y: 20,
 
-        .from(".floating-card-code", {
-            x: -35,
-            y: 20,
-            opacity: 0,
-            duration: 0.7,
-            ease: "back.out(1.4)"
-        }, "-=0.45")
+                opacity: 0,
 
-        .from(".hero-tech-badge", {
-            scale: 0,
-            rotate: -90,
-            opacity: 0,
-            duration: 0.8,
-            ease: "back.out(1.7)"
-        }, "-=0.6")
+                duration: 0.6
 
-        .from(".hero-bottom", {
-            opacity: 0,
-            y: 15,
-            duration: 0.6
-        }, "-=0.4");
+            },
+            "-=0.4"
+        )
+
+        .from(
+            ".hero-line-inner",
+            {
+
+                yPercent: 115,
+
+                duration: 1.1,
+
+                stagger: 0.09,
+
+                ease: "power4.out"
+
+            },
+            "-=0.4"
+        )
+
+        .from(
+            ".hero-description-wrap",
+            {
+
+                y: 30,
+
+                opacity: 0,
+
+                duration: 0.8,
+
+                ease: "power3.out"
+
+            },
+            "-=0.55"
+        )
+
+        .from(
+            ".hero-actions",
+            {
+
+                y: 25,
+
+                opacity: 0,
+
+                duration: 0.7,
+
+                ease: "power3.out"
+
+            },
+            "-=0.55"
+        )
+
+        .from(
+            ".portrait-frame",
+            {
+
+                clipPath:
+                    "polygon(0 100%, 94% 100%, 100% 100%, 7% 100%)",
+
+                scale: 0.94,
+
+                duration: 1.2,
+
+                ease: "power4.out"
+
+            },
+            "-=1.15"
+        )
+
+        .from(
+            ".portrait-image",
+            {
+
+                scale: 1.2,
+
+                duration: 1.4,
+
+                ease: "power4.out"
+
+            },
+            "<"
+        )
+
+        .from(
+            ".portrait-index",
+            {
+
+                opacity: 0,
+
+                y: 15,
+
+                duration: 0.6
+
+            },
+            "-=0.6"
+        )
+
+        .from(
+            ".floating-card-code",
+            {
+
+                x: -35,
+
+                y: 20,
+
+                opacity: 0,
+
+                duration: 0.7,
+
+                ease: "back.out(1.4)"
+
+            },
+            "-=0.45"
+        )
+
+        .from(
+            ".hero-tech-badge",
+            {
+
+                scale: 0,
+
+                rotate: -90,
+
+                opacity: 0,
+
+                duration: 0.8,
+
+                ease: "back.out(1.7)"
+
+            },
+            "-=0.6"
+        )
+
+        .from(
+            ".hero-bottom",
+            {
+
+                opacity: 0,
+
+                y: 15,
+
+                duration: 0.6
+
+            },
+            "-=0.4"
+        );
 
 }
 
@@ -284,26 +460,44 @@ window.addEventListener("scroll", () => {
 
 
     /*
-        Hide header when scrolling down.
-
-        Show it when scrolling upward.
+        Hide navbar while scrolling down.
+        Bring it back when scrolling upward.
     */
 
-    if (currentScroll > previousScroll && currentScroll > 500) {
+    if (header) {
 
-        gsap.to(header, {
-            yPercent: -110,
-            duration: 0.4,
-            ease: "power3.out"
-        });
+        if (
+            currentScroll > previousScroll &&
+            currentScroll > 500
+        ) {
 
-    } else {
+            gsap.to(header, {
 
-        gsap.to(header, {
-            yPercent: 0,
-            duration: 0.4,
-            ease: "power3.out"
-        });
+                yPercent: -110,
+
+                duration: 0.4,
+
+                overwrite: true,
+
+                ease: "power3.out"
+
+            });
+
+        } else {
+
+            gsap.to(header, {
+
+                yPercent: 0,
+
+                duration: 0.4,
+
+                overwrite: true,
+
+                ease: "power3.out"
+
+            });
+
+        }
 
     }
 
@@ -317,32 +511,53 @@ window.addEventListener("scroll", () => {
    07. MOBILE MENU
 ========================================================= */
 
-if (menuToggle && navMenu) {
+if (
+    menuToggle &&
+    navMenu
+) {
 
-    menuToggle.addEventListener("click", () => {
+    menuToggle.addEventListener(
+        "click",
+        () => {
 
-        menuToggle.classList.toggle("active");
+            menuToggle.classList.toggle(
+                "active"
+            );
 
-        navMenu.classList.toggle("active");
+            navMenu.classList.toggle(
+                "active"
+            );
 
-        body.classList.toggle("menu-open");
+            body.classList.toggle(
+                "menu-open"
+            );
 
-    });
+        }
+    );
 
 }
 
 
 navLinks.forEach(link => {
 
-    link.addEventListener("click", () => {
+    link.addEventListener(
+        "click",
+        () => {
 
-        menuToggle?.classList.remove("active");
+            menuToggle?.classList.remove(
+                "active"
+            );
 
-        navMenu?.classList.remove("active");
+            navMenu?.classList.remove(
+                "active"
+            );
 
-        body.classList.remove("menu-open");
+            body.classList.remove(
+                "menu-open"
+            );
 
-    });
+        }
+    );
 
 });
 
@@ -358,14 +573,17 @@ const navigationSections =
 function updateActiveNavigation() {
 
     const scrollPosition =
-        window.scrollY + window.innerHeight * 0.35;
+        window.scrollY +
+        window.innerHeight * 0.35;
 
 
     navigationSections.forEach(section => {
 
-        const sectionTop = section.offsetTop;
+        const sectionTop =
+            section.offsetTop;
 
-        const sectionHeight = section.offsetHeight;
+        const sectionHeight =
+            section.offsetHeight;
 
         const sectionId =
             section.getAttribute("id");
@@ -379,7 +597,9 @@ function updateActiveNavigation() {
 
             navLinks.forEach(link => {
 
-                link.classList.remove("active");
+                link.classList.remove(
+                    "active"
+                );
 
 
                 if (
@@ -387,7 +607,9 @@ function updateActiveNavigation() {
                     `#${sectionId}`
                 ) {
 
-                    link.classList.add("active");
+                    link.classList.add(
+                        "active"
+                    );
 
                 }
 
@@ -410,7 +632,8 @@ window.addEventListener(
    09. CUSTOM CURSOR
 ========================================================= */
 
-const cursor = document.querySelector(".cursor");
+const cursor =
+    document.querySelector(".cursor");
 
 const cursorDot =
     document.querySelector(".cursor-dot");
@@ -428,44 +651,68 @@ if (
 ) {
 
     let mouseX = 0;
+
     let mouseY = 0;
 
     let circleX = 0;
+
     let circleY = 0;
 
 
-    window.addEventListener("mousemove", event => {
+    window.addEventListener(
+        "mousemove",
+        event => {
 
-        mouseX = event.clientX;
-        mouseY = event.clientY;
+            mouseX = event.clientX;
+
+            mouseY = event.clientY;
 
 
-        gsap.set(cursorDot, {
-            x: mouseX,
-            y: mouseY
-        });
+            if (cursorDot) {
 
-    });
+                gsap.set(cursorDot, {
+
+                    x: mouseX,
+
+                    y: mouseY
+
+                });
+
+            }
+
+        }
+    );
 
 
     /*
-        Circle follows slightly behind the mouse.
+        Delayed cursor ring.
     */
 
     function animateCursor() {
 
-        circleX += (mouseX - circleX) * 0.13;
+        circleX +=
+            (mouseX - circleX) * 0.13;
 
-        circleY += (mouseY - circleY) * 0.13;
-
-
-        gsap.set(cursorCircle, {
-            x: circleX,
-            y: circleY
-        });
+        circleY +=
+            (mouseY - circleY) * 0.13;
 
 
-        requestAnimationFrame(animateCursor);
+        if (cursorCircle) {
+
+            gsap.set(cursorCircle, {
+
+                x: circleX,
+
+                y: circleY
+
+            });
+
+        }
+
+
+        requestAnimationFrame(
+            animateCursor
+        );
 
     }
 
@@ -476,22 +723,22 @@ if (
     function initializeCursorTargets() {
 
         const cursorTargets =
-            document.querySelectorAll("[data-cursor]");
+            document.querySelectorAll(
+                "[data-cursor]"
+            );
 
 
         cursorTargets.forEach(element => {
 
-            /*
-                Prevent adding the same listener again
-                after Supabase projects are loaded.
-            */
-
-            if (element.dataset.cursorReady) {
+            if (
+                element.dataset.cursorReady
+            ) {
                 return;
             }
 
 
-            element.dataset.cursorReady = "true";
+            element.dataset.cursorReady =
+                "true";
 
 
             element.addEventListener(
@@ -499,7 +746,8 @@ if (
                 () => {
 
                     const text =
-                        element.dataset.cursor || "VIEW";
+                        element.dataset.cursor ||
+                        "VIEW";
 
 
                     cursor.classList.add(
@@ -508,7 +756,10 @@ if (
 
 
                     if (cursorText) {
-                        cursorText.textContent = text;
+
+                        cursorText.textContent =
+                            text;
+
                     }
 
                 }
@@ -525,7 +776,10 @@ if (
 
 
                     if (cursorText) {
-                        cursorText.textContent = "";
+
+                        cursorText.textContent =
+                            "";
+
                     }
 
                 }
@@ -538,11 +792,6 @@ if (
 
     initializeCursorTargets();
 
-
-    /*
-        Make this function available after
-        dynamic projects are loaded.
-    */
 
     window.initializeCursorTargets =
         initializeCursorTargets;
@@ -557,24 +806,31 @@ if (
 function initializeMagneticElements() {
 
     if (
-        !window.matchMedia("(pointer: fine)").matches
+        !window.matchMedia(
+            "(pointer: fine)"
+        ).matches
     ) {
         return;
     }
 
 
     const magneticElements =
-        document.querySelectorAll(".magnetic");
+        document.querySelectorAll(
+            ".magnetic"
+        );
 
 
     magneticElements.forEach(element => {
 
-        if (element.dataset.magneticReady) {
+        if (
+            element.dataset.magneticReady
+        ) {
             return;
         }
 
 
-        element.dataset.magneticReady = "true";
+        element.dataset.magneticReady =
+            "true";
 
 
         element.addEventListener(
@@ -600,9 +856,12 @@ function initializeMagneticElements() {
                 gsap.to(element, {
 
                     x: x * 0.18,
+
                     y: y * 0.18,
 
                     duration: 0.35,
+
+                    overwrite: true,
 
                     ease: "power2.out"
 
@@ -619,11 +878,15 @@ function initializeMagneticElements() {
                 gsap.to(element, {
 
                     x: 0,
+
                     y: 0,
 
                     duration: 0.7,
 
-                    ease: "elastic.out(1, 0.35)"
+                    overwrite: true,
+
+                    ease:
+                        "elastic.out(1, 0.35)"
 
                 });
 
@@ -642,12 +905,15 @@ initializeMagneticElements();
    11. HERO MOUSE PARALLAX
 ========================================================= */
 
-const hero = document.querySelector(".hero");
+const hero =
+    document.querySelector(".hero");
 
 
 if (
     hero &&
-    window.matchMedia("(pointer: fine)").matches
+    window.matchMedia(
+        "(pointer: fine)"
+    ).matches
 ) {
 
     hero.addEventListener(
@@ -660,48 +926,65 @@ if (
 
             const mouseX =
                 (event.clientX - rect.left) /
-                rect.width - 0.5;
+                    rect.width -
+                0.5;
 
 
             const mouseY =
                 (event.clientY - rect.top) /
-                rect.height - 0.5;
+                    rect.height -
+                0.5;
 
 
             gsap.to(".portrait-wrap", {
 
                 x: mouseX * 14,
+
                 y: mouseY * 10,
 
                 duration: 1.2,
 
-                ease: "power3.out"
-
-            });
-
-
-            gsap.to(".floating-card-code", {
-
-                x: mouseX * -22,
-                y: mouseY * -18,
-
-                duration: 1.4,
+                overwrite: "auto",
 
                 ease: "power3.out"
 
             });
 
 
-            gsap.to(".hero-tech-badge", {
+            gsap.to(
+                ".floating-card-code",
+                {
 
-                x: mouseX * 22,
-                y: mouseY * 18,
+                    x: mouseX * -22,
 
-                duration: 1.5,
+                    y: mouseY * -18,
 
-                ease: "power3.out"
+                    duration: 1.4,
 
-            });
+                    overwrite: "auto",
+
+                    ease: "power3.out"
+
+                }
+            );
+
+
+            gsap.to(
+                ".hero-tech-badge",
+                {
+
+                    x: mouseX * 22,
+
+                    y: mouseY * 18,
+
+                    duration: 1.5,
+
+                    overwrite: "auto",
+
+                    ease: "power3.out"
+
+                }
+            );
 
         }
     );
@@ -718,12 +1001,15 @@ if (
                     ".hero-tech-badge"
                 ],
                 {
+
                     x: 0,
+
                     y: 0,
 
                     duration: 1.2,
 
                     ease: "power3.out"
+
                 }
             );
 
@@ -804,25 +1090,29 @@ gsap.utils
     .toArray(".section-header")
     .forEach(headerElement => {
 
-        gsap.from(headerElement, {
+        gsap.from(
+            headerElement,
+            {
 
-            y: 35,
+                y: 35,
 
-            opacity: 0,
+                opacity: 0,
 
-            duration: 0.9,
+                duration: 0.9,
 
-            ease: "power3.out",
+                ease: "power3.out",
 
-            scrollTrigger: {
+                scrollTrigger: {
 
-                trigger: headerElement,
+                    trigger:
+                        headerElement,
 
-                start: "top 85%"
+                    start: "top 85%"
+
+                }
 
             }
-
-        });
+        );
 
     });
 
@@ -917,11 +1207,14 @@ if (window.innerWidth > 768) {
 
                 scrollTrigger: {
 
-                    trigger: ".about-bento",
+                    trigger:
+                        ".about-bento",
 
-                    start: "top bottom",
+                    start:
+                        "top bottom",
 
-                    end: "bottom top",
+                    end:
+                        "bottom top",
 
                     scrub: 1.2
 
@@ -950,7 +1243,8 @@ gsap.from(".services-heading h2", {
 
     scrollTrigger: {
 
-        trigger: ".services-heading",
+        trigger:
+            ".services-heading",
 
         start: "top 82%"
 
@@ -995,22 +1289,45 @@ gsap.utils
 ========================================================= */
 
 const serviceRows =
-    document.querySelectorAll(".service-row");
+    document.querySelectorAll(
+        ".service-row"
+    );
 
 const servicePreview =
-    document.querySelector(".service-preview");
+    document.querySelector(
+        ".service-preview"
+    );
 
 
 if (
     servicePreview &&
-    window.matchMedia("(pointer: fine)").matches
+    window.matchMedia(
+        "(pointer: fine)"
+    ).matches
 ) {
 
     const previewNumber =
-        servicePreview.querySelector("span");
+        servicePreview.querySelector(
+            "span"
+        );
 
     const previewIcon =
-        servicePreview.querySelector("i");
+        servicePreview.querySelector(
+            "i"
+        );
+
+
+    const icons = {
+
+        "01": "fa-building",
+
+        "02": "fa-bullseye",
+
+        "03": "fa-code",
+
+        "04": "fa-rotate"
+
+    };
 
 
     serviceRows.forEach(row => {
@@ -1024,52 +1341,43 @@ if (
 
 
                 if (previewNumber) {
+
                     previewNumber.textContent =
                         serviceNumber;
+
                 }
-
-
-                /*
-                    Change preview icon depending
-                    on the service.
-                */
-
-                const icons = {
-
-                    "01": "fa-building",
-
-                    "02": "fa-bullseye",
-
-                    "03": "fa-code",
-
-                    "04": "fa-rotate"
-
-                };
 
 
                 if (previewIcon) {
 
                     previewIcon.className =
                         `fa-solid ${
-                            icons[serviceNumber]
+                            icons[
+                                serviceNumber
+                            ] ||
+                            "fa-code"
                         }`;
 
                 }
 
 
-                gsap.to(servicePreview, {
+                gsap.to(
+                    servicePreview,
+                    {
 
-                    opacity: 1,
+                        opacity: 1,
 
-                    scale: 1,
+                        scale: 1,
 
-                    rotate: 4,
+                        rotate: 4,
 
-                    duration: 0.45,
+                        duration: 0.45,
 
-                    ease: "power3.out"
+                        ease:
+                            "power3.out"
 
-                });
+                    }
+                );
 
             }
         );
@@ -1079,17 +1387,26 @@ if (
             "mousemove",
             event => {
 
-                gsap.to(servicePreview, {
+                gsap.to(
+                    servicePreview,
+                    {
 
-                    x: event.clientX + 110,
+                        x:
+                            event.clientX +
+                            110,
 
-                    y: event.clientY,
+                        y:
+                            event.clientY,
 
-                    duration: 0.6,
+                        duration: 0.6,
 
-                    ease: "power3.out"
+                        overwrite: true,
 
-                });
+                        ease:
+                            "power3.out"
+
+                    }
+                );
 
             }
         );
@@ -1099,19 +1416,23 @@ if (
             "mouseleave",
             () => {
 
-                gsap.to(servicePreview, {
+                gsap.to(
+                    servicePreview,
+                    {
 
-                    opacity: 0,
+                        opacity: 0,
 
-                    scale: 0.8,
+                        scale: 0.8,
 
-                    rotate: -5,
+                        rotate: -5,
 
-                    duration: 0.35,
+                        duration: 0.35,
 
-                    ease: "power3.out"
+                        ease:
+                            "power3.out"
 
-                });
+                    }
+                );
 
             }
         );
@@ -1137,7 +1458,8 @@ gsap.from(".work-heading h2", {
 
     scrollTrigger: {
 
-        trigger: ".work-heading",
+        trigger:
+            ".work-heading",
 
         start: "top 82%"
 
@@ -1158,20 +1480,38 @@ function initializeProjectImageEffects() {
         )
         .forEach(image => {
 
-            if (image.dataset.parallaxReady) {
+            if (
+                image.dataset
+                    .parallaxReady
+            ) {
                 return;
             }
 
 
-            image.dataset.parallaxReady = "true";
+            image.dataset.parallaxReady =
+                "true";
+
+
+            const parent =
+                image.closest(
+                    ".project-slide, .dynamic-project-card"
+                );
+
+
+            if (!parent) {
+                return;
+            }
 
 
             gsap.fromTo(
                 image,
                 {
+
                     scale: 1.08
+
                 },
                 {
+
                     scale: 1,
 
                     ease: "none",
@@ -1179,13 +1519,13 @@ function initializeProjectImageEffects() {
                     scrollTrigger: {
 
                         trigger:
-                            image.closest(
-                                ".project-slide, .dynamic-project-card"
-                            ),
+                            parent,
 
-                        start: "top bottom",
+                        start:
+                            "top bottom",
 
-                        end: "bottom top",
+                        end:
+                            "bottom top",
 
                         scrub: 1
 
@@ -1203,36 +1543,34 @@ function initializeProjectImageEffects() {
    21. HORIZONTAL PROJECT SCROLL
 ========================================================= */
 
-let horizontalScrollTrigger = null;
+let horizontalScrollTrigger =
+    null;
 
 
 function initializeHorizontalProjects() {
-
-    /*
-        Kill old trigger before rebuilding.
-    */
 
     if (horizontalScrollTrigger) {
 
         horizontalScrollTrigger.kill();
 
-        horizontalScrollTrigger = null;
+        horizontalScrollTrigger =
+            null;
 
     }
 
 
-    const workSection =
-        document.querySelector(".work");
-
     const workHorizontal =
-        document.querySelector(".work-horizontal");
+        document.querySelector(
+            ".work-horizontal"
+        );
 
     const workTrack =
-        document.querySelector(".work-track");
+        document.querySelector(
+            ".work-track"
+        );
 
 
     if (
-        !workSection ||
         !workHorizontal ||
         !workTrack
     ) {
@@ -1241,13 +1579,15 @@ function initializeHorizontalProjects() {
 
 
     /*
-        Mobile intentionally stays vertical.
+        Mobile uses normal vertical layout.
     */
 
     if (window.innerWidth <= 768) {
 
         gsap.set(workTrack, {
+
             clearProps: "transform"
+
         });
 
         return;
@@ -1257,75 +1597,86 @@ function initializeHorizontalProjects() {
     const getScrollAmount = () => {
 
         return Math.max(
+
             0,
+
             workTrack.scrollWidth -
-            window.innerWidth
+                window.innerWidth
+
         );
 
     };
 
 
-    const scrollAmount =
-        getScrollAmount();
-
-
-    /*
-        If only one project exists and there is
-        nothing to scroll horizontally, don't pin.
-    */
-
-    if (scrollAmount <= 50) {
+    if (
+        getScrollAmount() <= 50
+    ) {
         return;
     }
 
 
-    const tween = gsap.to(workTrack, {
+    const tween =
+        gsap.to(workTrack, {
 
-        x: () => -getScrollAmount(),
+            x: () =>
+                -getScrollAmount(),
 
-        ease: "none",
+            ease: "none",
 
-        scrollTrigger: {
+            scrollTrigger: {
 
-            trigger: workHorizontal,
+                trigger:
+                    workHorizontal,
 
-            start: "top top",
+                start:
+                    "top top",
 
-            end: () =>
-                `+=${getScrollAmount()}`,
+                end: () =>
+                    `+=${getScrollAmount()}`,
 
-            pin: true,
+                pin: true,
 
-            scrub: 1,
+                scrub: 1,
 
-            invalidateOnRefresh: true,
+                invalidateOnRefresh:
+                    true,
 
-            anticipatePin: 1,
-
-            onUpdate: self => {
-
-                const progressBar =
-                    document.querySelector(
-                        ".work-progress-track span"
-                    );
+                anticipatePin: 1,
 
 
-                if (progressBar) {
+                onUpdate: self => {
 
-                    gsap.set(progressBar, {
+                    const progressBar =
+                        document.querySelector(
+                            ".work-progress-track span"
+                        );
 
-                        width:
-                            `${10 + self.progress * 90}%`
 
-                    });
+                    if (
+                        progressBar
+                    ) {
+
+                        gsap.set(
+                            progressBar,
+                            {
+
+                                width:
+                                    `${
+                                        10 +
+                                        self.progress *
+                                            90
+                                    }%`
+
+                            }
+                        );
+
+                    }
 
                 }
 
             }
 
-        }
-
-    });
+        });
 
 
     horizontalScrollTrigger =
@@ -1350,7 +1701,8 @@ gsap.from(".capabilities-title", {
 
     scrollTrigger: {
 
-        trigger: ".capabilities-grid",
+        trigger:
+            ".capabilities-grid",
 
         start: "top 80%"
 
@@ -1371,15 +1723,18 @@ gsap.utils
 
             duration: 0.8,
 
-            delay: index * 0.04,
+            delay:
+                index * 0.04,
 
-            ease: "power3.out",
+            ease:
+                "power3.out",
 
             scrollTrigger: {
 
                 trigger: row,
 
-                start: "top 88%"
+                start:
+                    "top 88%"
 
             }
 
@@ -1388,23 +1743,29 @@ gsap.utils
     });
 
 
-gsap.to(".capabilities-background", {
+gsap.to(
+    ".capabilities-background",
+    {
 
-    y: -180,
+        y: -180,
 
-    scrollTrigger: {
+        scrollTrigger: {
 
-        trigger: ".capabilities",
+            trigger:
+                ".capabilities",
 
-        start: "top bottom",
+            start:
+                "top bottom",
 
-        end: "bottom top",
+            end:
+                "bottom top",
 
-        scrub: 1
+            scrub: 1
+
+        }
 
     }
-
-});
+);
 
 
 /* =========================================================
@@ -1423,7 +1784,8 @@ gsap.from(".process-intro h2", {
 
     scrollTrigger: {
 
-        trigger: ".process-intro",
+        trigger:
+            ".process-intro",
 
         start: "top 82%"
 
@@ -1446,7 +1808,8 @@ gsap.from(".process-step", {
 
     scrollTrigger: {
 
-        trigger: ".process-timeline",
+        trigger:
+            ".process-timeline",
 
         start: "top 80%"
 
@@ -1455,90 +1818,113 @@ gsap.from(".process-step", {
 });
 
 
-gsap.to(".process-progress span", {
+gsap.to(
+    ".process-progress span",
+    {
 
-    width: "100%",
+        width: "100%",
 
-    ease: "none",
+        ease: "none",
 
-    scrollTrigger: {
+        scrollTrigger: {
 
-        trigger: ".process-timeline",
+            trigger:
+                ".process-timeline",
 
-        start: "top 80%",
+            start:
+                "top 80%",
 
-        end: "bottom 45%",
+            end:
+                "bottom 45%",
 
-        scrub: 1
+            scrub: 1
+
+        }
 
     }
-
-});
+);
 
 
 /* =========================================================
    24. STATEMENT SECTION
 ========================================================= */
 
-gsap.from(".statement-container > *", {
+gsap.from(
+    ".statement-container > *",
+    {
 
-    y: 70,
+        y: 70,
 
-    opacity: 0,
+        opacity: 0,
 
-    stagger: 0.12,
+        stagger: 0.12,
 
-    duration: 1,
+        duration: 1,
 
-    ease: "power4.out",
+        ease: "power4.out",
 
-    scrollTrigger: {
+        scrollTrigger: {
 
-        trigger: ".statement",
+            trigger:
+                ".statement",
 
-        start: "top 65%"
+            start:
+                "top 65%"
 
-    }
-
-});
-
-
-gsap.to(".statement-word-top", {
-
-    xPercent: 12,
-
-    scrollTrigger: {
-
-        trigger: ".statement",
-
-        start: "top bottom",
-
-        end: "bottom top",
-
-        scrub: 1
+        }
 
     }
+);
 
-});
 
+gsap.to(
+    ".statement-word-top",
+    {
 
-gsap.to(".statement-word-bottom", {
+        xPercent: 12,
 
-    xPercent: -12,
+        scrollTrigger: {
 
-    scrollTrigger: {
+            trigger:
+                ".statement",
 
-        trigger: ".statement",
+            start:
+                "top bottom",
 
-        start: "top bottom",
+            end:
+                "bottom top",
 
-        end: "bottom top",
+            scrub: 1
 
-        scrub: 1
+        }
 
     }
+);
 
-});
+
+gsap.to(
+    ".statement-word-bottom",
+    {
+
+        xPercent: -12,
+
+        scrollTrigger: {
+
+            trigger:
+                ".statement",
+
+            start:
+                "top bottom",
+
+            end:
+                "bottom top",
+
+            scrub: 1
+
+        }
+
+    }
+);
 
 
 /* =========================================================
@@ -1557,7 +1943,8 @@ gsap.from(".contact-title h2", {
 
     scrollTrigger: {
 
-        trigger: ".contact-title",
+        trigger:
+            ".contact-title",
 
         start: "top 80%"
 
@@ -1566,25 +1953,30 @@ gsap.from(".contact-title h2", {
 });
 
 
-gsap.from(".contact-information", {
+gsap.from(
+    ".contact-information",
+    {
 
-    x: -50,
+        x: -50,
 
-    opacity: 0,
+        opacity: 0,
 
-    duration: 0.9,
+        duration: 0.9,
 
-    ease: "power3.out",
+        ease: "power3.out",
 
-    scrollTrigger: {
+        scrollTrigger: {
 
-        trigger: ".contact-grid",
+            trigger:
+                ".contact-grid",
 
-        start: "top 80%"
+            start:
+                "top 80%"
+
+        }
 
     }
-
-});
+);
 
 
 gsap.from(".form-field", {
@@ -1601,7 +1993,8 @@ gsap.from(".form-field", {
 
     scrollTrigger: {
 
-        trigger: ".contact-form",
+        trigger:
+            ".contact-form",
 
         start: "top 80%"
 
@@ -1626,7 +2019,8 @@ gsap.from(".footer-big-text", {
 
     scrollTrigger: {
 
-        trigger: ".footer",
+        trigger:
+            ".footer",
 
         start: "top 85%"
 
@@ -1644,8 +2038,11 @@ backToTop?.addEventListener(
     () => {
 
         window.scrollTo({
+
             top: 0,
+
             behavior: "smooth"
+
         });
 
     }
@@ -1653,36 +2050,82 @@ backToTop?.addEventListener(
 
 
 /* =========================================================
-   28. CONTACT FORM
+   28. CONTACT FORM — FORMSPREE
 ========================================================= */
 
 contactForm?.addEventListener(
     "submit",
-    event => {
+    async event => {
 
         event.preventDefault();
 
 
+        /* -----------------------------------------
+           Get form data
+        ----------------------------------------- */
+
         const formData =
-            new FormData(contactForm);
+            new FormData(
+                contactForm
+            );
 
 
         const name =
-            formData.get("name");
+            String(
+                formData.get("name") ||
+                ""
+            ).trim();
+
 
         const email =
-            formData.get("email");
+            String(
+                formData.get("email") ||
+                ""
+            ).trim();
 
-        const projectType =
-            formData.get("project_type");
 
         const message =
-            formData.get("message");
+            String(
+                formData.get("message") ||
+                ""
+            ).trim();
 
 
-        /*
-            Basic frontend validation.
-        */
+        /* -----------------------------------------
+           Find submit button
+        ----------------------------------------- */
+
+        const submitButton =
+            contactForm.querySelector(
+                'button[type="submit"], .contact-submit'
+            );
+
+
+        const submitText =
+            submitButton?.querySelector(
+                "span"
+            );
+
+
+        const submitIcon =
+            submitButton?.querySelector(
+                "i"
+            );
+
+
+        const originalText =
+            submitText?.textContent ||
+            "SEND INQUIRY";
+
+
+        const originalIcon =
+            submitIcon?.className ||
+            "fa-solid fa-arrow-right-long";
+
+
+        /* -----------------------------------------
+           Required validation
+        ----------------------------------------- */
 
         if (
             !name ||
@@ -1691,7 +2134,7 @@ contactForm?.addEventListener(
         ) {
 
             showFormMessage(
-                "Please complete the required fields.",
+                "Please complete all required fields.",
                 "error"
             );
 
@@ -1700,40 +2143,298 @@ contactForm?.addEventListener(
         }
 
 
-        /*
-            IMPORTANT:
+        /* -----------------------------------------
+           Email validation
+        ----------------------------------------- */
 
-            This currently demonstrates the form
-            interaction only.
-
-            Later you can connect this section to:
-
-            - Formspree
-            - Supabase
-            - EmailJS
-            - Your own backend
-        */
+        const emailPattern =
+            /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
 
-        console.log({
-            name,
-            email,
-            projectType,
-            message
-        });
+        if (
+            !emailPattern.test(
+                email
+            )
+        ) {
+
+            showFormMessage(
+                "Please enter a valid email address.",
+                "error"
+            );
+
+            return;
+
+        }
 
 
-        showFormMessage(
-            `Thanks ${name}. Your message is ready to send.`,
-            "success"
-        );
+        /* -----------------------------------------
+           Loading state
+        ----------------------------------------- */
+
+        if (submitButton) {
+
+            submitButton.disabled =
+                true;
+
+        }
 
 
-        contactForm.reset();
+        if (submitText) {
+
+            submitText.textContent =
+                "SENDING...";
+
+        }
+
+
+        if (submitIcon) {
+
+            submitIcon.className =
+                "fa-solid fa-spinner fa-spin";
+
+        }
+
+
+        if (formMessage) {
+
+            formMessage.textContent =
+                "";
+
+        }
+
+
+        try {
+
+            /* =====================================
+               REAL FORMSPREE REQUEST
+            ===================================== */
+
+            const response =
+                await fetch(
+
+                    "https://formspree.io/f/xnjedawr",
+
+                    {
+
+                        method:
+                            "POST",
+
+                        body:
+                            formData,
+
+                        headers: {
+
+                            Accept:
+                                "application/json"
+
+                        }
+
+                    }
+
+                );
+
+
+            const data =
+                await response.json();
+
+
+            /* -------------------------------------
+               Formspree returned an error
+            ------------------------------------- */
+
+            if (!response.ok) {
+
+                let errorMessage =
+                    "Unable to send your message. Please try again.";
+
+
+                if (
+                    data.errors &&
+                    data.errors.length
+                ) {
+
+                    errorMessage =
+                        data.errors
+                            .map(
+                                error =>
+                                    error.message
+                            )
+                            .join(", ");
+
+                }
+
+
+                throw new Error(
+                    errorMessage
+                );
+
+            }
+
+
+            /* =====================================
+               SUCCESS
+            ===================================== */
+
+            showFormMessage(
+
+                `Thanks ${name}! Your message has been sent successfully.`,
+
+                "success"
+
+            );
+
+
+            contactForm.reset();
+
+
+            if (submitText) {
+
+                submitText.textContent =
+                    "MESSAGE SENT";
+
+            }
+
+
+            if (submitIcon) {
+
+                submitIcon.className =
+                    "fa-solid fa-check";
+
+            }
+
+
+            /*
+                Small success interaction.
+            */
+
+            if (submitButton) {
+
+                gsap.fromTo(
+
+                    submitButton,
+
+                    {
+
+                        scale: 0.96
+
+                    },
+
+                    {
+
+                        scale: 1,
+
+                        duration: 0.6,
+
+                        ease:
+                            "elastic.out(1, 0.4)"
+
+                    }
+
+                );
+
+            }
+
+
+            /*
+                Restore button after 3 sec.
+            */
+
+            setTimeout(() => {
+
+                if (submitText) {
+
+                    submitText.textContent =
+                        originalText;
+
+                }
+
+
+                if (submitIcon) {
+
+                    submitIcon.className =
+                        originalIcon;
+
+                }
+
+            }, 3000);
+
+
+        } catch (error) {
+
+            console.error(
+                "Form submission error:",
+                error
+            );
+
+
+            /* =====================================
+               ERROR
+            ===================================== */
+
+            showFormMessage(
+
+                error.message ||
+                "Something went wrong. Please try again.",
+
+                "error"
+
+            );
+
+
+            if (submitText) {
+
+                submitText.textContent =
+                    "TRY AGAIN";
+
+            }
+
+
+            if (submitIcon) {
+
+                submitIcon.className =
+                    "fa-solid fa-arrow-rotate-right";
+
+            }
+
+
+            setTimeout(() => {
+
+                if (submitText) {
+
+                    submitText.textContent =
+                        originalText;
+
+                }
+
+
+                if (submitIcon) {
+
+                    submitIcon.className =
+                        originalIcon;
+
+                }
+
+            }, 3000);
+
+
+        } finally {
+
+            if (submitButton) {
+
+                submitButton.disabled =
+                    false;
+
+            }
+
+        }
 
     }
 );
 
+
+/* =========================================================
+   FORM MESSAGE
+========================================================= */
 
 function showFormMessage(
     message,
@@ -1745,7 +2446,8 @@ function showFormMessage(
     }
 
 
-    formMessage.textContent = message;
+    formMessage.textContent =
+        message;
 
 
     formMessage.style.color =
@@ -1755,16 +2457,29 @@ function showFormMessage(
 
 
     gsap.fromTo(
+
         formMessage,
+
         {
+
             opacity: 0,
-            y: 8
+
+            y: 10
+
         },
+
         {
+
             opacity: 1,
+
             y: 0,
-            duration: 0.4
+
+            duration: 0.45,
+
+            ease: "power3.out"
+
         }
+
     );
 
 }
@@ -1782,23 +2497,14 @@ async function loadProjects() {
 
 
     /*
-        supabase-config.js should create a global
-        variable called:
+        supabase-config.js must create:
 
         supabaseClient
-
-        Example:
-
-        const supabaseClient =
-            supabase.createClient(
-                SUPABASE_URL,
-                SUPABASE_ANON_KEY
-            );
     */
 
-
     if (
-        typeof supabaseClient === "undefined"
+        typeof supabaseClient ===
+        "undefined"
     ) {
 
         console.warn(
@@ -1806,12 +2512,17 @@ async function loadProjects() {
         );
 
 
-        projectsGrid.innerHTML = "";
+        projectsGrid.innerHTML =
+            "";
 
-        projectsEmpty?.removeAttribute("hidden");
+
+        projectsEmpty?.removeAttribute(
+            "hidden"
+        );
 
 
         initializeHorizontalProjects();
+
 
         return;
 
@@ -1823,15 +2534,20 @@ async function loadProjects() {
         const {
             data: projects,
             error
-        } = await supabaseClient
+        } =
+            await supabaseClient
 
-            .from("projects")
+                .from("projects")
 
-            .select("*")
+                .select("*")
 
-            .order("created_at", {
-                ascending: false
-            });
+                .order(
+                    "created_at",
+                    {
+                        ascending:
+                            false
+                    }
+                );
 
 
         if (error) {
@@ -1839,7 +2555,8 @@ async function loadProjects() {
         }
 
 
-        projectsGrid.innerHTML = "";
+        projectsGrid.innerHTML =
+            "";
 
 
         if (
@@ -1853,6 +2570,7 @@ async function loadProjects() {
 
 
             initializeHorizontalProjects();
+
 
             return;
 
@@ -1875,15 +2593,17 @@ async function loadProjects() {
                     );
 
 
-                projectsGrid.appendChild(card);
+                projectsGrid.appendChild(
+                    card
+                );
 
             }
         );
 
 
         /*
-            Reinitialize effects because the
-            project elements now exist.
+            Reinitialize interactions for
+            dynamically created projects.
         */
 
         initializeProjectImageEffects();
@@ -1892,26 +2612,26 @@ async function loadProjects() {
 
 
         if (
-            window.initializeCursorTargets
+            window
+                .initializeCursorTargets
         ) {
 
-            window.initializeCursorTargets();
+            window
+                .initializeCursorTargets();
 
         }
 
 
-        /*
-            Wait for browser layout before
-            calculating horizontal width.
-        */
+        requestAnimationFrame(
+            () => {
 
-        requestAnimationFrame(() => {
+                initializeHorizontalProjects();
 
-            initializeHorizontalProjects();
+                ScrollTrigger.refresh();
 
-            ScrollTrigger.refresh();
+            }
+        );
 
-        });
 
     } catch (error) {
 
@@ -1953,17 +2673,14 @@ function createProjectCard(
 ) {
 
     const article =
-        document.createElement("article");
+        document.createElement(
+            "article"
+        );
 
 
     article.className =
         "dynamic-project-card";
 
-
-    /*
-        Try to support different column names
-        you may already have in Supabase.
-    */
 
     const title =
         project.title ||
@@ -2011,7 +2728,9 @@ function createProjectCard(
 
 
     const number =
-        String(index + 2).padStart(
+        String(
+            index + 2
+        ).padStart(
             2,
             "0"
         );
@@ -2019,6 +2738,10 @@ function createProjectCard(
 
     let mediaHTML = "";
 
+
+    /* -----------------------------------------
+       Video project
+    ----------------------------------------- */
 
     if (videoUrl) {
 
@@ -2034,6 +2757,11 @@ function createProjectCard(
 
         `;
 
+
+    /* -----------------------------------------
+       Image project
+    ----------------------------------------- */
+
     } else if (imageUrl) {
 
         mediaHTML = `
@@ -2045,6 +2773,11 @@ function createProjectCard(
             >
 
         `;
+
+
+    /* -----------------------------------------
+       No image fallback
+    ----------------------------------------- */
 
     } else {
 
@@ -2062,7 +2795,9 @@ function createProjectCard(
                     letter-spacing:-0.07em;
                 "
             >
+
                 ${escapeHTML(title)}
+
             </div>
 
         `;
@@ -2071,20 +2806,26 @@ function createProjectCard(
 
 
     const technologies =
-        normalizeTechnologies(techStack);
+        normalizeTechnologies(
+            techStack
+        );
 
 
     const technologyHTML =
         technologies
+
             .map(
                 technology => `
 
                     <span>
-                        ${escapeHTML(technology)}
+                        ${escapeHTML(
+                            technology
+                        )}
                     </span>
 
                 `
             )
+
             .join("");
 
 
@@ -2094,7 +2835,9 @@ function createProjectCard(
 
             ${
                 projectUrl !== "#"
+
                     ? `
+
                         <a
                             href="${escapeHTML(projectUrl)}"
                             target="_blank"
@@ -2106,9 +2849,13 @@ function createProjectCard(
                                 height:100%;
                             "
                         >
+
                             ${mediaHTML}
+
                         </a>
+
                     `
+
                     : mediaHTML
             }
 
@@ -2118,9 +2865,12 @@ function createProjectCard(
         <div class="dynamic-project-info">
 
 
-            <span class="dynamic-project-category">
+            <span
+                class="dynamic-project-category"
+            >
 
-                ${number} / ${escapeHTML(category)}
+                ${number} /
+                ${escapeHTML(category)}
 
             </span>
 
@@ -2134,27 +2884,37 @@ function createProjectCard(
 
             <p>
 
-                ${escapeHTML(description)}
+                ${escapeHTML(
+                    description
+                )}
 
             </p>
 
 
             ${
                 technologyHTML
+
                     ? `
-                        <div class="project-tech">
+
+                        <div
+                            class="project-tech"
+                        >
 
                             ${technologyHTML}
 
                         </div>
+
                     `
+
                     : ""
             }
 
 
             ${
                 projectUrl !== "#"
+
                     ? `
+
                         <a
                             href="${escapeHTML(projectUrl)}"
                             target="_blank"
@@ -2174,7 +2934,9 @@ function createProjectCard(
                             </span>
 
                         </a>
+
                     `
+
                     : ""
             }
 
@@ -2192,28 +2954,34 @@ function createProjectCard(
    31. NORMALIZE TECHNOLOGIES
 ========================================================= */
 
-function normalizeTechnologies(value) {
+function normalizeTechnologies(
+    value
+) {
 
     if (!value) {
         return [];
     }
 
 
-    /*
-        Already an array.
-    */
+    if (
+        Array.isArray(value)
+    ) {
 
-    if (Array.isArray(value)) {
         return value;
+
     }
 
 
-    /*
-        Try JSON array:
-        ["HTML","CSS","JS"]
-    */
+    if (
+        typeof value ===
+        "string"
+    ) {
 
-    if (typeof value === "string") {
+        /*
+            Support JSON array:
+
+            ["HTML","CSS","JS"]
+        */
 
         try {
 
@@ -2221,14 +2989,21 @@ function normalizeTechnologies(value) {
                 JSON.parse(value);
 
 
-            if (Array.isArray(parsed)) {
+            if (
+                Array.isArray(
+                    parsed
+                )
+            ) {
+
                 return parsed;
+
             }
 
         } catch (error) {
 
             /*
-                Normal comma separated string.
+                Continue to comma
+                separated parsing.
             */
 
         }
@@ -2238,7 +3013,10 @@ function normalizeTechnologies(value) {
 
             .split(",")
 
-            .map(item => item.trim())
+            .map(
+                item =>
+                    item.trim()
+            )
 
             .filter(Boolean);
 
@@ -2256,22 +3034,42 @@ function normalizeTechnologies(value) {
 
 function escapeHTML(value) {
 
-    if (value === null || value === undefined) {
+    if (
+        value === null ||
+        value === undefined
+    ) {
+
         return "";
+
     }
 
 
     return String(value)
 
-        .replaceAll("&", "&amp;")
+        .replaceAll(
+            "&",
+            "&amp;"
+        )
 
-        .replaceAll("<", "&lt;")
+        .replaceAll(
+            "<",
+            "&lt;"
+        )
 
-        .replaceAll(">", "&gt;")
+        .replaceAll(
+            ">",
+            "&gt;"
+        )
 
-        .replaceAll('"', "&quot;")
+        .replaceAll(
+            '"',
+            "&quot;"
+        )
 
-        .replaceAll("'", "&#039;");
+        .replaceAll(
+            "'",
+            "&#039;"
+        );
 
 }
 
@@ -2283,14 +3081,37 @@ function escapeHTML(value) {
 function refreshAfterImagesLoad() {
 
     const images =
-        document.querySelectorAll("img");
-
-
-    let loadedImages = 0;
+        document.querySelectorAll(
+            "img"
+        );
 
 
     if (!images.length) {
+
+        ScrollTrigger.refresh();
+
         return;
+
+    }
+
+
+    let remaining =
+        images.length;
+
+
+    function imageReady() {
+
+        remaining--;
+
+
+        if (
+            remaining <= 0
+        ) {
+
+            ScrollTrigger.refresh();
+
+        }
+
     }
 
 
@@ -2298,26 +3119,29 @@ function refreshAfterImagesLoad() {
 
         if (image.complete) {
 
-            loadedImages++;
+            imageReady();
 
         } else {
 
             image.addEventListener(
                 "load",
-                () => {
+                imageReady,
+                {
+                    once: true
+                }
+            );
 
-                    loadedImages++;
 
+            /*
+                Broken images should not
+                prevent refresh.
+            */
 
-                    if (
-                        loadedImages ===
-                        images.length
-                    ) {
-
-                        ScrollTrigger.refresh();
-
-                    }
-
+            image.addEventListener(
+                "error",
+                imageReady,
+                {
+                    once: true
                 }
             );
 
@@ -2339,58 +3163,187 @@ window.addEventListener(
     "resize",
     () => {
 
-        clearTimeout(resizeTimer);
+        clearTimeout(
+            resizeTimer
+        );
 
 
-        resizeTimer = setTimeout(() => {
+        resizeTimer =
+            setTimeout(
+                () => {
 
-            initializeHorizontalProjects();
+                    initializeHorizontalProjects();
 
-            ScrollTrigger.refresh();
+                    ScrollTrigger.refresh();
 
-        }, 250);
+                },
+                250
+            );
 
     }
 );
 
 
 /* =========================================================
-   35. INIT
+   35. WEBSITE INITIALIZATION
 ========================================================= */
 
-document.addEventListener(
-    "DOMContentLoaded",
-    () => {
+let websiteInitialized =
+    false;
 
-        runLoader();
 
-        loadProjects();
+function initializeWebsite() {
 
-        initializeProjectImageEffects();
+    /*
+        Prevent duplicate initialization.
+    */
 
-        refreshAfterImagesLoad();
-
-        updateActiveNavigation();
-
+    if (websiteInitialized) {
+        return;
     }
-);
+
+
+    websiteInitialized =
+        true;
+
+
+    runLoader();
+
+
+    loadProjects();
+
+
+    initializeProjectImageEffects();
+
+
+    refreshAfterImagesLoad();
+
+
+    updateActiveNavigation();
+
+}
+
+
+/*
+    IMPORTANT LOADER FIX
+
+    If DOM is still loading:
+        wait.
+
+    If DOM has already loaded:
+        start immediately.
+
+    This prevents the loader from
+    remaining at 00.
+*/
+
+if (
+    document.readyState ===
+    "loading"
+) {
+
+    document.addEventListener(
+        "DOMContentLoaded",
+        initializeWebsite,
+        {
+            once: true
+        }
+    );
+
+} else {
+
+    initializeWebsite();
+
+}
 
 
 /* =========================================================
-   36. FINAL REFRESH
+   36. LOADER SAFETY FALLBACK
+========================================================= */
+
+/*
+    A portfolio should never leave
+    the visitor trapped behind the loader.
+
+    If the normal loader somehow fails,
+    remove it after 5 seconds.
+*/
+
+setTimeout(() => {
+
+    if (
+        !pageLoader ||
+        loaderFinished
+    ) {
+        return;
+    }
+
+
+    console.warn(
+        "Loader fallback activated."
+    );
+
+
+    loaderFinished = true;
+
+
+    gsap.killTweensOf(
+        pageLoader
+    );
+
+
+    gsap.to(
+        pageLoader,
+        {
+
+            yPercent: -100,
+
+            opacity: 0,
+
+            duration: 0.8,
+
+            ease:
+                "power4.inOut",
+
+            onComplete: () => {
+
+                pageLoader.style.display =
+                    "none";
+
+
+                runIntroAnimation();
+
+
+                ScrollTrigger.refresh();
+
+            }
+
+        }
+    );
+
+}, 5000);
+
+
+/* =========================================================
+   37. FINAL WINDOW LOAD
 ========================================================= */
 
 window.addEventListener(
     "load",
     () => {
 
-        setTimeout(() => {
+        setTimeout(
+            () => {
 
-            initializeHorizontalProjects();
+                initializeHorizontalProjects();
 
-            ScrollTrigger.refresh();
+                initializeProjectImageEffects();
 
-        }, 300);
+                ScrollTrigger.refresh();
+
+            },
+            300
+        );
 
     }
 );
